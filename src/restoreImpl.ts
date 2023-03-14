@@ -36,7 +36,8 @@ async function restoreImpl(
         const failOnCacheMiss = utils.getInputAsBool(Inputs.FailOnCacheMiss);
         const lookupOnly = utils.getInputAsBool(Inputs.LookupOnly);
 
-        cachePaths.push(cachePath.join('|'));
+        if (cachePath.length > 0) cachePaths.push(cachePath.join('|'));
+
 	cachePaths.forEach( async (path) => {
 
 	  // slow, because it blocks waiting for each path to be restored
@@ -51,11 +52,11 @@ async function restoreImpl(
           if (!cacheKey) {
             if (failOnCacheMiss) {
               throw new Error(
-                    `Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input key: ${primaryKey}`
+                    `Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input path: ${path}. Input key: ${primaryKey}`
                 );
             }
             core.info(
-                `Cache not found for input keys: ${[
+                `Cache not found for input path: ${path} keys: ${[
                     primaryKey,
                     ...restoreKeys
                 ].join(", ")}`
@@ -75,9 +76,9 @@ async function restoreImpl(
 
           core.setOutput(Outputs.CacheHit, isExactKeyMatch.toString());
           if (lookupOnly) {
-            core.info(`Cache found and can be restored from key: ${cacheKey}`);
+            core.info(`Cache found for ${path} and can be restored from key: ${cacheKey}`);
           } else {
-            core.info(`Cache restored from key: ${cacheKey}`);
+            core.info(`Cache restored for ${path} from key: ${cacheKey}`);
           }
 	});
         return;
