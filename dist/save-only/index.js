@@ -46049,6 +46049,7 @@ var Inputs;
 (function (Inputs) {
     Inputs["Key"] = "key";
     Inputs["Path"] = "path";
+    Inputs["Paths"] = "paths";
     Inputs["RestoreKeys"] = "restore-keys";
     Inputs["UploadChunkSize"] = "upload-chunk-size";
     Inputs["EnableCrossOsArchive"] = "enableCrossOsArchive";
