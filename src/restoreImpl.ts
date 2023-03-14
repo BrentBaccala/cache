@@ -7,7 +7,7 @@ import * as utils from "./utils/actionUtils";
 
 async function restoreImpl(
     stateProvider: IStateProvider
-): Promise<string | undefined> {
+): Promise<undefined> {
     try {
         if (!utils.isCacheFeatureAvailable()) {
             core.setOutput(Outputs.CacheHit, "false");
@@ -28,26 +28,29 @@ async function restoreImpl(
         stateProvider.setState(State.CachePrimaryKey, primaryKey);
 
         const restoreKeys = utils.getInputAsArray(Inputs.RestoreKeys);
-        const cachePaths = utils.getInputAsArray(Inputs.Path, {
-            required: true
-        });
+        const cachePath = utils.getInputAsArray(Inputs.Path);
+        const cachePaths = utils.getInputAsArray(Inputs.Paths);
         const enableCrossOsArchive = utils.getInputAsBool(
             Inputs.EnableCrossOsArchive
         );
         const failOnCacheMiss = utils.getInputAsBool(Inputs.FailOnCacheMiss);
         const lookupOnly = utils.getInputAsBool(Inputs.LookupOnly);
 
-        const cacheKey = await cache.restoreCache(
-            cachePaths,
+        cachePaths.push(cachePath.join('|'));
+	cachePaths.forEach( async (path) => {
+
+	  // slow, because it blocks waiting for each path to be restored
+          const cacheKey = await cache.restoreCache(
+            [path],
             primaryKey,
             restoreKeys,
             { lookupOnly: lookupOnly },
             enableCrossOsArchive
-        );
+          );
 
-        if (!cacheKey) {
+          if (!cacheKey) {
             if (failOnCacheMiss) {
-                throw new Error(
+              throw new Error(
                     `Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input key: ${primaryKey}`
                 );
             }
@@ -59,24 +62,25 @@ async function restoreImpl(
             );
 
             return;
-        }
+          }
 
-        // Store the matched cache key in states
-        stateProvider.setState(State.CacheMatchedKey, cacheKey);
+          // Store the matched cache key in states
+          // old API used one path per call and cache-matched-key had only one return value
+          stateProvider.setState(State.CacheMatchedKey, cacheKey);
 
-        const isExactKeyMatch = utils.isExactKeyMatch(
+          const isExactKeyMatch = utils.isExactKeyMatch(
             core.getInput(Inputs.Key, { required: true }),
             cacheKey
-        );
+          );
 
-        core.setOutput(Outputs.CacheHit, isExactKeyMatch.toString());
-        if (lookupOnly) {
+          core.setOutput(Outputs.CacheHit, isExactKeyMatch.toString());
+          if (lookupOnly) {
             core.info(`Cache found and can be restored from key: ${cacheKey}`);
-        } else {
+          } else {
             core.info(`Cache restored from key: ${cacheKey}`);
-        }
-
-        return cacheKey;
+          }
+	});
+        return;
     } catch (error: unknown) {
         core.setFailed((error as Error).message);
     }
