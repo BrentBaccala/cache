@@ -49121,15 +49121,16 @@ function restoreImpl(stateProvider) {
             const enableCrossOsArchive = utils.getInputAsBool(constants_1.Inputs.EnableCrossOsArchive);
             const failOnCacheMiss = utils.getInputAsBool(constants_1.Inputs.FailOnCacheMiss);
             const lookupOnly = utils.getInputAsBool(constants_1.Inputs.LookupOnly);
-            cachePaths.push(cachePath.join('|'));
+            if (cachePath.length > 0)
+                cachePaths.push(cachePath.join('|'));
             cachePaths.forEach((path) => __awaiter(this, void 0, void 0, function* () {
                 // slow, because it blocks waiting for each path to be restored
                 const cacheKey = yield cache.restoreCache([path], primaryKey, restoreKeys, { lookupOnly: lookupOnly }, enableCrossOsArchive);
                 if (!cacheKey) {
                     if (failOnCacheMiss) {
-                        throw new Error(`Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input key: ${primaryKey}`);
+                        throw new Error(`Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input path: ${path}. Input key: ${primaryKey}`);
                     }
-                    core.info(`Cache not found for input keys: ${[
+                    core.info(`Cache not found for input path: ${path} keys: ${[
                         primaryKey,
                         ...restoreKeys
                     ].join(", ")}`);
@@ -49141,10 +49142,10 @@ function restoreImpl(stateProvider) {
                 const isExactKeyMatch = utils.isExactKeyMatch(core.getInput(constants_1.Inputs.Key, { required: true }), cacheKey);
                 core.setOutput(constants_1.Outputs.CacheHit, isExactKeyMatch.toString());
                 if (lookupOnly) {
-                    core.info(`Cache found and can be restored from key: ${cacheKey}`);
+                    core.info(`Cache found for ${path} and can be restored from key: ${cacheKey}`);
                 }
                 else {
-                    core.info(`Cache restored from key: ${cacheKey}`);
+                    core.info(`Cache restored for ${path} from key: ${cacheKey}`);
                 }
             }));
             return;
