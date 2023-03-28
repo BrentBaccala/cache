@@ -45938,6 +45938,7 @@ var Inputs;
     Inputs["Key"] = "key";
     Inputs["Path"] = "path";
     Inputs["Paths"] = "paths";
+    Inputs["Json"] = "json";
     Inputs["RestoreKeys"] = "restore-keys";
     Inputs["UploadChunkSize"] = "upload-chunk-size";
     Inputs["EnableCrossOsArchive"] = "enableCrossOsArchive";
@@ -45947,6 +45948,8 @@ var Inputs;
 var Outputs;
 (function (Outputs) {
     Outputs["CacheHit"] = "cache-hit";
+    Outputs["CacheHits"] = "cache-hits";
+    Outputs["CacheMisses"] = "cache-misses";
     Outputs["CachePrimaryKey"] = "cache-primary-key";
     Outputs["CacheMatchedKey"] = "cache-matched-key"; // Output from restore action
 })(Outputs = exports.Outputs || (exports.Outputs = {}));
@@ -49106,6 +49109,8 @@ function restoreImpl(stateProvider) {
         try {
             if (!utils.isCacheFeatureAvailable()) {
                 core.setOutput(constants_1.Outputs.CacheHit, "false");
+                core.setOutput(constants_1.Outputs.CacheHits, "[]");
+                core.setOutput(constants_1.Outputs.CacheMisses, "[]"); // XXX wrong - should be all values
                 return;
             }
             // Validate inputs, this can cause task failure
@@ -49113,7 +49118,39 @@ function restoreImpl(stateProvider) {
                 utils.logWarning(`Event Validation Error: The event type ${process.env[constants_1.Events.Key]} is not supported because it's not tied to a branch or tag ref.`);
                 return;
             }
-            const primaryKey = core.getInput(constants_1.Inputs.Key, { required: true });
+            const jsonString = core.getInput(constants_1.Inputs.Json);
+            if (jsonString != "") {
+                const json = JSON.parse(jsonString); // might throw SyntaxError
+                json.forEach((element) => __awaiter(this, void 0, void 0, function* () {
+                    const key = element.key;
+                    const value = element.value;
+                    // slow, because it blocks waiting for each path to be restored
+                    const cacheKey = yield cache.restoreCache([value['path']], value['key'], value['restore-keys'], { lookupOnly: lookupOnly }, enableCrossOsArchive);
+                    if (!cacheKey) {
+                        if (failOnCacheMiss) {
+                            throw new Error(`Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input path: ${value['path']}. Input key: ${value['key']}`);
+                        }
+                        core.info(`Cache not found for input path: ${value['path']} keys: ${[
+                            value['key'],
+                            ...value['restore-keys']
+                        ].join(", ")}`);
+                        return;
+                    }
+                    // Store the matched cache key in states
+                    // old API used one path per call and cache-matched-key had only one return value
+                    stateProvider.setState(constants_1.State.CacheMatchedKey, cacheKey);
+                    const isExactKeyMatch = utils.isExactKeyMatch(core.getInput(constants_1.Inputs.Key, { required: true }), cacheKey);
+                    core.setOutput(constants_1.Outputs.CacheHit, isExactKeyMatch.toString());
+                    if (lookupOnly) {
+                        core.info(`Cache found for ${value['path']} and can be restored from key: ${cacheKey}`);
+                    }
+                    else {
+                        core.info(`Cache restored for ${value['path']} from key: ${cacheKey}`);
+                    }
+                }));
+                return;
+            }
+            const primaryKey = core.getInput(constants_1.Inputs.Key);
             stateProvider.setState(constants_1.State.CachePrimaryKey, primaryKey);
             const restoreKeys = utils.getInputAsArray(constants_1.Inputs.RestoreKeys);
             const cachePath = utils.getInputAsArray(constants_1.Inputs.Path);
