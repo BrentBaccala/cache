@@ -11,6 +11,8 @@ async function restoreImpl(
     try {
         if (!utils.isCacheFeatureAvailable()) {
             core.setOutput(Outputs.CacheHit, "false");
+            core.setOutput(Outputs.CacheHits, "[]");
+            core.setOutput(Outputs.CacheMisses, "[]"); // XXX wrong - should be all values
             return;
         }
 
@@ -24,7 +26,61 @@ async function restoreImpl(
             return;
         }
 
-        const primaryKey = core.getInput(Inputs.Key, { required: true });
+        const jsonString = core.getInput(Inputs.Json);
+
+        if (jsonString != "") {
+           const json = JSON.parse(jsonString); // might throw SyntaxError
+
+           json.forEach( async element => {
+
+	     const key = element.key;
+	     const value = element.value;
+
+	     // slow, because it blocks waiting for each path to be restored
+             const cacheKey = await cache.restoreCache(
+               [value['path']],
+	       value['key'],
+	       value['restore-keys'],
+	       { lookupOnly: lookupOnly },
+	       enableCrossOsArchive
+             );
+
+             if (!cacheKey) {
+               if (failOnCacheMiss) {
+		 throw new Error(
+                   `Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input path: ${value['path']}. Input key: ${value['key']}`
+                 );
+               }
+               core.info(
+                 `Cache not found for input path: ${value['path']} keys: ${[
+                    value['key'],
+                    ...value['restore-keys']
+                ].join(", ")}`
+               );
+
+               return;
+             }
+
+             // Store the matched cache key in states
+             // old API used one path per call and cache-matched-key had only one return value
+             stateProvider.setState(State.CacheMatchedKey, cacheKey);
+
+             const isExactKeyMatch = utils.isExactKeyMatch(
+               core.getInput(Inputs.Key, { required: true }),
+               cacheKey
+             );
+
+             core.setOutput(Outputs.CacheHit, isExactKeyMatch.toString());
+             if (lookupOnly) {
+               core.info(`Cache found for ${value['path']} and can be restored from key: ${cacheKey}`);
+             } else {
+               core.info(`Cache restored for ${value['path']} from key: ${cacheKey}`);
+             }
+	   });
+	  return;
+        }
+
+        const primaryKey = core.getInput(Inputs.Key);
         stateProvider.setState(State.CachePrimaryKey, primaryKey);
 
         const restoreKeys = utils.getInputAsArray(Inputs.RestoreKeys);

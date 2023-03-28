@@ -2,6 +2,7 @@ export enum Inputs {
     Key = "key", // Input for cache, restore, save action
     Path = "path", // Input for cache, restore, save action
     Paths = "paths", // Input for cache, restore, save action
+    Json = "json", // Input for cache, restore, save action
     RestoreKeys = "restore-keys", // Input for cache, restore action
     UploadChunkSize = "upload-chunk-size", // Input for cache, save action
     EnableCrossOsArchive = "enableCrossOsArchive", // Input for cache, restore, save action
@@ -11,6 +12,8 @@ export enum Inputs {
 
 export enum Outputs {
     CacheHit = "cache-hit", // Output from cache, restore action
+    CacheHits = "cache-hits", // Output from cache, restore action
+    CacheMisses = "cache-misses", // Output from cache, restore action
     CachePrimaryKey = "cache-primary-key", // Output from restore action
     CacheMatchedKey = "cache-matched-key" // Output from restore action
 }
