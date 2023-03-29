@@ -26,6 +26,9 @@ async function restoreImpl(
             return;
         }
 
+        const failOnCacheMiss = utils.getInputAsBool(Inputs.FailOnCacheMiss);
+        const lookupOnly = utils.getInputAsBool(Inputs.LookupOnly);
+
         const jsonString = core.getInput(Inputs.Json);
 
         if (jsonString != "") {
@@ -89,8 +92,6 @@ async function restoreImpl(
         const enableCrossOsArchive = utils.getInputAsBool(
             Inputs.EnableCrossOsArchive
         );
-        const failOnCacheMiss = utils.getInputAsBool(Inputs.FailOnCacheMiss);
-        const lookupOnly = utils.getInputAsBool(Inputs.LookupOnly);
 
         if (cachePath.length > 0) cachePaths.push(cachePath.join('|'));
 
