@@ -49118,6 +49118,8 @@ function restoreImpl(stateProvider) {
                 utils.logWarning(`Event Validation Error: The event type ${process.env[constants_1.Events.Key]} is not supported because it's not tied to a branch or tag ref.`);
                 return;
             }
+            const failOnCacheMiss = utils.getInputAsBool(constants_1.Inputs.FailOnCacheMiss);
+            const lookupOnly = utils.getInputAsBool(constants_1.Inputs.LookupOnly);
             const jsonString = core.getInput(constants_1.Inputs.Json);
             if (jsonString != "") {
                 const json = JSON.parse(jsonString); // might throw SyntaxError
@@ -49156,8 +49158,6 @@ function restoreImpl(stateProvider) {
             const cachePath = utils.getInputAsArray(constants_1.Inputs.Path);
             const cachePaths = utils.getInputAsArray(constants_1.Inputs.Paths);
             const enableCrossOsArchive = utils.getInputAsBool(constants_1.Inputs.EnableCrossOsArchive);
-            const failOnCacheMiss = utils.getInputAsBool(constants_1.Inputs.FailOnCacheMiss);
-            const lookupOnly = utils.getInputAsBool(constants_1.Inputs.LookupOnly);
             if (cachePath.length > 0)
                 cachePaths.push(cachePath.join('|'));
             cachePaths.forEach((path) => __awaiter(this, void 0, void 0, function* () {
