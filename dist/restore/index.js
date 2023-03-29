@@ -49121,31 +49121,31 @@ function restoreImpl(stateProvider) {
             const jsonString = core.getInput(constants_1.Inputs.Json);
             if (jsonString != "") {
                 const json = JSON.parse(jsonString); // might throw SyntaxError
-                json.forEach((element) => __awaiter(this, void 0, void 0, function* () {
-                    const key = element.key;
-                    const value = element.value;
-                    // slow, because it blocks waiting for each path to be restored
-                    const cacheKey = yield cache.restoreCache([value['path']], value['key'], value['restore-keys'], { lookupOnly: lookupOnly }, enableCrossOsArchive);
-                    if (!cacheKey) {
-                        if (failOnCacheMiss) {
-                            throw new Error(`Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input path: ${value['path']}. Input key: ${value['key']}`);
+                Object.entries(json).forEach(([key, value]) => __awaiter(this, void 0, void 0, function* () {
+                    if (value instanceof Object) {
+                        // slow, because it blocks waiting for each path to be restored
+                        const cacheKey = yield cache.restoreCache([value['path']], value['key'], value['restore-keys'], { lookupOnly: lookupOnly }, enableCrossOsArchive);
+                        if (!cacheKey) {
+                            if (failOnCacheMiss) {
+                                throw new Error(`Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input path: ${value['path']}. Input key: ${value['key']}`);
+                            }
+                            core.info(`Cache not found for input path: ${value['path']} keys: ${[
+                                value['key'],
+                                ...value['restore-keys']
+                            ].join(", ")}`);
+                            return;
                         }
-                        core.info(`Cache not found for input path: ${value['path']} keys: ${[
-                            value['key'],
-                            ...value['restore-keys']
-                        ].join(", ")}`);
-                        return;
-                    }
-                    // Store the matched cache key in states
-                    // old API used one path per call and cache-matched-key had only one return value
-                    stateProvider.setState(constants_1.State.CacheMatchedKey, cacheKey);
-                    const isExactKeyMatch = utils.isExactKeyMatch(core.getInput(constants_1.Inputs.Key, { required: true }), cacheKey);
-                    core.setOutput(constants_1.Outputs.CacheHit, isExactKeyMatch.toString());
-                    if (lookupOnly) {
-                        core.info(`Cache found for ${value['path']} and can be restored from key: ${cacheKey}`);
-                    }
-                    else {
-                        core.info(`Cache restored for ${value['path']} from key: ${cacheKey}`);
+                        // Store the matched cache key in states
+                        // old API used one path per call and cache-matched-key had only one return value
+                        stateProvider.setState(constants_1.State.CacheMatchedKey, cacheKey);
+                        const isExactKeyMatch = utils.isExactKeyMatch(core.getInput(constants_1.Inputs.Key, { required: true }), cacheKey);
+                        core.setOutput(constants_1.Outputs.CacheHit, isExactKeyMatch.toString());
+                        if (lookupOnly) {
+                            core.info(`Cache found for ${value['path']} and can be restored from key: ${cacheKey}`);
+                        }
+                        else {
+                            core.info(`Cache restored for ${value['path']} from key: ${cacheKey}`);
+                        }
                     }
                 }));
                 return;
