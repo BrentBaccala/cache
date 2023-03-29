@@ -26,6 +26,9 @@ async function restoreImpl(
             return;
         }
 
+        const enableCrossOsArchive = utils.getInputAsBool(
+            Inputs.EnableCrossOsArchive
+        );
         const failOnCacheMiss = utils.getInputAsBool(Inputs.FailOnCacheMiss);
         const lookupOnly = utils.getInputAsBool(Inputs.LookupOnly);
 
@@ -89,9 +92,6 @@ async function restoreImpl(
         const restoreKeys = utils.getInputAsArray(Inputs.RestoreKeys);
         const cachePath = utils.getInputAsArray(Inputs.Path);
         const cachePaths = utils.getInputAsArray(Inputs.Paths);
-        const enableCrossOsArchive = utils.getInputAsBool(
-            Inputs.EnableCrossOsArchive
-        );
 
         if (cachePath.length > 0) cachePaths.push(cachePath.join('|'));
 
