@@ -37,7 +37,7 @@ async function restoreImpl(
            const cacheMisses: Object[] = [];
            const cacheHits: Object[] = [];
 
-           Object.entries(json).forEach( async value => {
+           json.forEach( async value => {
 
 	     if (value instanceof Object) {
 
