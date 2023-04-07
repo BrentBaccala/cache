@@ -11,8 +11,6 @@ async function restoreImpl(
     try {
         if (!utils.isCacheFeatureAvailable()) {
             core.setOutput(Outputs.CacheHit, "false");
-            core.setOutput(Outputs.CacheHits, "[]");
-            core.setOutput(Outputs.CacheMisses, "[]"); // XXX wrong - should be all values
             return;
         }
 
@@ -36,8 +34,10 @@ async function restoreImpl(
 
         if (jsonString != "") {
            const json = JSON.parse(jsonString); // might throw SyntaxError
+           const cacheMisses: Object[] = [];
+           const cacheHits: Object[] = [];
 
-           Object.entries(json).forEach( async ([key,value]) => {
+           Object.entries(json).forEach( async value => {
 
 	     if (value instanceof Object) {
 
@@ -63,6 +63,7 @@ async function restoreImpl(
                 ].join(", ")}`
 		 );
 
+                 cacheMisses.push(value);
 		 return;
                }
 
@@ -75,7 +76,9 @@ async function restoreImpl(
 		 cacheKey
                );
 
-               core.setOutput(Outputs.CacheHit, isExactKeyMatch.toString());
+               //core.setOutput(Outputs.CacheHit, isExactKeyMatch.toString());
+	       cacheHits.push(value);
+
                if (lookupOnly) {
 		 core.info(`Cache found for ${value['path']} and can be restored from key: ${cacheKey}`);
                } else {
@@ -83,6 +86,8 @@ async function restoreImpl(
                }
 	     }
 	   });
+          core.setOutput(Outputs.CacheHits, JSON.stringify(cacheHits));
+          core.setOutput(Outputs.CacheMisses, JSON.stringify(cacheMisses));
 	  return;
         }
 
