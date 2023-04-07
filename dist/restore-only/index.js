@@ -49124,7 +49124,7 @@ function restoreImpl(stateProvider) {
                 const json = JSON.parse(jsonString); // might throw SyntaxError
                 const cacheMisses = [];
                 const cacheHits = [];
-                Object.entries(json).forEach((value) => __awaiter(this, void 0, void 0, function* () {
+                json.forEach((value) => __awaiter(this, void 0, void 0, function* () {
                     if (value instanceof Object) {
                         // slow, because it blocks waiting for each path to be restored
                         const cacheKey = yield cache.restoreCache([value['path']], value['key'], value['restore-keys'], { lookupOnly: lookupOnly }, enableCrossOsArchive);
