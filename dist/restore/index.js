@@ -49109,8 +49109,6 @@ function restoreImpl(stateProvider) {
         try {
             if (!utils.isCacheFeatureAvailable()) {
                 core.setOutput(constants_1.Outputs.CacheHit, "false");
-                core.setOutput(constants_1.Outputs.CacheHits, "[]");
-                core.setOutput(constants_1.Outputs.CacheMisses, "[]"); // XXX wrong - should be all values
                 return;
             }
             // Validate inputs, this can cause task failure
@@ -49124,7 +49122,9 @@ function restoreImpl(stateProvider) {
             const jsonString = core.getInput(constants_1.Inputs.Json);
             if (jsonString != "") {
                 const json = JSON.parse(jsonString); // might throw SyntaxError
-                Object.entries(json).forEach(([key, value]) => __awaiter(this, void 0, void 0, function* () {
+                const cacheMisses = [];
+                const cacheHits = [];
+                Object.entries(json).forEach((value) => __awaiter(this, void 0, void 0, function* () {
                     if (value instanceof Object) {
                         // slow, because it blocks waiting for each path to be restored
                         const cacheKey = yield cache.restoreCache([value['path']], value['key'], value['restore-keys'], { lookupOnly: lookupOnly }, enableCrossOsArchive);
@@ -49136,13 +49136,15 @@ function restoreImpl(stateProvider) {
                                 value['key'],
                                 ...value['restore-keys']
                             ].join(", ")}`);
+                            cacheMisses.push(value);
                             return;
                         }
                         // Store the matched cache key in states
                         // old API used one path per call and cache-matched-key had only one return value
                         stateProvider.setState(constants_1.State.CacheMatchedKey, cacheKey);
                         const isExactKeyMatch = utils.isExactKeyMatch(core.getInput(constants_1.Inputs.Key, { required: true }), cacheKey);
-                        core.setOutput(constants_1.Outputs.CacheHit, isExactKeyMatch.toString());
+                        //core.setOutput(Outputs.CacheHit, isExactKeyMatch.toString());
+                        cacheHits.push(value);
                         if (lookupOnly) {
                             core.info(`Cache found for ${value['path']} and can be restored from key: ${cacheKey}`);
                         }
@@ -49151,6 +49153,8 @@ function restoreImpl(stateProvider) {
                         }
                     }
                 }));
+                core.setOutput(constants_1.Outputs.CacheHits, JSON.stringify(cacheHits));
+                core.setOutput(constants_1.Outputs.CacheMisses, JSON.stringify(cacheMisses));
                 return;
             }
             const primaryKey = core.getInput(constants_1.Inputs.Key);
