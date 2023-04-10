@@ -34,7 +34,7 @@ module.exports =
 /******/ 	// the startup function
 /******/ 	function startup() {
 /******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(778);
+/******/ 		return __webpack_require__(8);
 /******/ 	};
 /******/
 /******/ 	// run startup
@@ -409,7 +409,36 @@ exports.default = _default;
 /* 5 */,
 /* 6 */,
 /* 7 */,
-/* 8 */,
+/* 8 */
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const restoreListImpl_1 = __importDefault(__webpack_require__(398));
+const stateProvider_1 = __webpack_require__(309);
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield (0, restoreListImpl_1.default)(new stateProvider_1.NullStateProvider());
+    });
+}
+run();
+exports.default = run;
+
+
+/***/ }),
 /* 9 */
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
@@ -3350,7 +3379,7 @@ const http_client_1 = __webpack_require__(425);
 const auth_1 = __webpack_require__(554);
 const crypto = __importStar(__webpack_require__(417));
 const fs = __importStar(__webpack_require__(747));
-const url_1 = __webpack_require__(414);
+const url_1 = __webpack_require__(835);
 const utils = __importStar(__webpack_require__(15));
 const downloadUtils_1 = __webpack_require__(251);
 const options_1 = __webpack_require__(538);
@@ -34986,7 +35015,7 @@ exports.Path = Path;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProxyTracerProvider = void 0;
-const ProxyTracer_1 = __webpack_require__(398);
+const ProxyTracer_1 = __webpack_require__(592);
 const NoopTracerProvider_1 = __webpack_require__(162);
 const NOOP_TRACER_PROVIDER = new NoopTracerProvider_1.NoopTracerProvider();
 /**
@@ -35032,60 +35061,100 @@ exports.ProxyTracerProvider = ProxyTracerProvider;
 
 "use strict";
 
-/*
- * Copyright The OpenTelemetry Authors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProxyTracer = void 0;
-const NoopTracer_1 = __webpack_require__(151);
-const NOOP_TRACER = new NoopTracer_1.NoopTracer();
-/**
- * Proxy tracer provided by the proxy tracer provider
- */
-class ProxyTracer {
-    constructor(_provider, name, version, options) {
-        this._provider = _provider;
-        this.name = name;
-        this.version = version;
-        this.options = options;
-    }
-    startSpan(name, options, context) {
-        return this._getTracer().startSpan(name, options, context);
-    }
-    startActiveSpan(_name, _options, _context, _fn) {
-        const tracer = this._getTracer();
-        return Reflect.apply(tracer.startActiveSpan, tracer, arguments);
-    }
-    /**
-     * Try to get a tracer from the proxy tracer provider.
-     * If the proxy tracer provider has no delegate, return a noop tracer.
-     */
-    _getTracer() {
-        if (this._delegate) {
-            return this._delegate;
+const cache = __importStar(__webpack_require__(692));
+const core = __importStar(__webpack_require__(470));
+const constants_1 = __webpack_require__(694);
+const utils = __importStar(__webpack_require__(443));
+function restoreListImpl(stateProvider) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            if (!utils.isCacheFeatureAvailable()) {
+                core.setOutput(constants_1.Outputs.CacheHit, "false");
+                return;
+            }
+            // Validate inputs, this can cause task failure
+            if (!utils.isValidEvent()) {
+                utils.logWarning(`Event Validation Error: The event type ${process.env[constants_1.Events.Key]} is not supported because it's not tied to a branch or tag ref.`);
+                return;
+            }
+            const enableCrossOsArchive = utils.getInputAsBool(constants_1.Inputs.EnableCrossOsArchive);
+            const failOnCacheMiss = utils.getInputAsBool(constants_1.Inputs.FailOnCacheMiss);
+            const lookupOnly = utils.getInputAsBool(constants_1.Inputs.LookupOnly);
+            const jsonString = core.getInput(constants_1.Inputs.Json);
+            const json = JSON.parse(jsonString); // might throw SyntaxError
+            const cacheMisses = [];
+            const cacheHits = [];
+            json.forEach((value) => __awaiter(this, void 0, void 0, function* () {
+                if (value instanceof Object) {
+                    // slow, because it blocks waiting for each path to be restored
+                    const cacheKey = yield cache.restoreCache([value['path']], value['key'], value['restore-keys'], { lookupOnly: lookupOnly }, enableCrossOsArchive);
+                    if (!cacheKey) {
+                        if (failOnCacheMiss) {
+                            throw new Error(`Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input path: ${value['path']}. Input key: ${value['key']}`);
+                        }
+                        core.info(`Cache not found for input path: ${value['path']} keys: ${[
+                            value['key'],
+                            ...value['restore-keys']
+                        ].join(", ")}`);
+                        cacheMisses.push(value);
+                        return;
+                    }
+                    // Store the matched cache key in states
+                    // old API used one path per call and cache-matched-key had only one return value
+                    stateProvider.setState(constants_1.State.CacheMatchedKey, cacheKey);
+                    const isExactKeyMatch = utils.isExactKeyMatch(value['key'], cacheKey);
+                    cacheHits.push(value);
+                    if (lookupOnly) {
+                        core.info(`Cache found for ${value['path']} and can be restored from key: ${cacheKey}`);
+                    }
+                    else {
+                        core.info(`Cache restored for ${value['path']} from key: ${cacheKey}`);
+                    }
+                }
+            }));
+            core.setOutput(constants_1.Outputs.CacheHits, JSON.stringify(cacheHits));
+            core.setOutput(constants_1.Outputs.CacheMisses, JSON.stringify(cacheMisses));
         }
-        const tracer = this._provider.getDelegateTracer(this.name, this.version, this.options);
-        if (!tracer) {
-            return NOOP_TRACER;
+        catch (error) {
+            core.setFailed(error.message);
         }
-        this._delegate = tracer;
-        return this._delegate;
-    }
+    });
 }
-exports.ProxyTracer = ProxyTracer;
-//# sourceMappingURL=ProxyTracer.js.map
+exports.default = restoreListImpl;
+
 
 /***/ }),
 /* 399 */,
@@ -35114,12 +35183,7 @@ module.exports = __webpack_require__(141);
 
 
 /***/ }),
-/* 414 */
-/***/ (function(module) {
-
-module.exports = require("url");
-
-/***/ }),
+/* 414 */,
 /* 415 */,
 /* 416 */,
 /* 417 */
@@ -36757,7 +36821,7 @@ Object.defineProperty(exports, "ValueType", { enumerable: true, get: function ()
 var TextMapPropagator_1 = __webpack_require__(881);
 Object.defineProperty(exports, "defaultTextMapGetter", { enumerable: true, get: function () { return TextMapPropagator_1.defaultTextMapGetter; } });
 Object.defineProperty(exports, "defaultTextMapSetter", { enumerable: true, get: function () { return TextMapPropagator_1.defaultTextMapSetter; } });
-var ProxyTracer_1 = __webpack_require__(398);
+var ProxyTracer_1 = __webpack_require__(592);
 Object.defineProperty(exports, "ProxyTracer", { enumerable: true, get: function () { return ProxyTracer_1.ProxyTracer; } });
 var ProxyTracerProvider_1 = __webpack_require__(394);
 Object.defineProperty(exports, "ProxyTracerProvider", { enumerable: true, get: function () { return ProxyTracerProvider_1.ProxyTracerProvider; } });
@@ -37018,7 +37082,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var Stream = _interopDefault(__webpack_require__(794));
 var http = _interopDefault(__webpack_require__(605));
-var Url = _interopDefault(__webpack_require__(414));
+var Url = _interopDefault(__webpack_require__(835));
 var whatwgUrl = _interopDefault(__webpack_require__(70));
 var https = _interopDefault(__webpack_require__(211));
 var zlib = _interopDefault(__webpack_require__(761));
@@ -41387,7 +41451,67 @@ exports.validateValue = validateValue;
 
 /***/ }),
 /* 591 */,
-/* 592 */,
+/* 592 */
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+/*
+ * Copyright The OpenTelemetry Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProxyTracer = void 0;
+const NoopTracer_1 = __webpack_require__(151);
+const NOOP_TRACER = new NoopTracer_1.NoopTracer();
+/**
+ * Proxy tracer provided by the proxy tracer provider
+ */
+class ProxyTracer {
+    constructor(_provider, name, version, options) {
+        this._provider = _provider;
+        this.name = name;
+        this.version = version;
+        this.options = options;
+    }
+    startSpan(name, options, context) {
+        return this._getTracer().startSpan(name, options, context);
+    }
+    startActiveSpan(_name, _options, _context, _fn) {
+        const tracer = this._getTracer();
+        return Reflect.apply(tracer.startActiveSpan, tracer, arguments);
+    }
+    /**
+     * Try to get a tracer from the proxy tracer provider.
+     * If the proxy tracer provider has no delegate, return a noop tracer.
+     */
+    _getTracer() {
+        if (this._delegate) {
+            return this._delegate;
+        }
+        const tracer = this._provider.getDelegateTracer(this.name, this.version, this.options);
+        if (!tracer) {
+            return NOOP_TRACER;
+        }
+        this._delegate = tracer;
+        return this._delegate;
+    }
+}
+exports.ProxyTracer = ProxyTracer;
+//# sourceMappingURL=ProxyTracer.js.map
+
+/***/ }),
 /* 593 */,
 /* 594 */,
 /* 595 */,
@@ -47452,36 +47576,7 @@ module.exports = function(dst, src) {
 /* 775 */,
 /* 776 */,
 /* 777 */,
-/* 778 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const restoreImpl_1 = __importDefault(__webpack_require__(835));
-const stateProvider_1 = __webpack_require__(309);
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield (0, restoreImpl_1.default)(new stateProvider_1.StateProvider());
-    });
-}
-run();
-exports.default = run;
-
-
-/***/ }),
+/* 778 */,
 /* 779 */
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
@@ -47897,7 +47992,7 @@ var util = __webpack_require__(669);
 var path = __webpack_require__(622);
 var http = __webpack_require__(605);
 var https = __webpack_require__(211);
-var parseUrl = __webpack_require__(414).parse;
+var parseUrl = __webpack_require__(835).parse;
 var fs = __webpack_require__(747);
 var Stream = __webpack_require__(794).Stream;
 var mime = __webpack_require__(779);
@@ -49063,103 +49158,9 @@ exports.VERSION = '1.4.0';
 /* 833 */,
 /* 834 */,
 /* 835 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
+/***/ (function(module) {
 
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const cache = __importStar(__webpack_require__(692));
-const core = __importStar(__webpack_require__(470));
-const constants_1 = __webpack_require__(694);
-const utils = __importStar(__webpack_require__(443));
-function restoreImpl(stateProvider) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            if (!utils.isCacheFeatureAvailable()) {
-                core.setOutput(constants_1.Outputs.CacheHit, "false");
-                return;
-            }
-            // Validate inputs, this can cause task failure
-            if (!utils.isValidEvent()) {
-                utils.logWarning(`Event Validation Error: The event type ${process.env[constants_1.Events.Key]} is not supported because it's not tied to a branch or tag ref.`);
-                return;
-            }
-            const enableCrossOsArchive = utils.getInputAsBool(constants_1.Inputs.EnableCrossOsArchive);
-            const failOnCacheMiss = utils.getInputAsBool(constants_1.Inputs.FailOnCacheMiss);
-            const lookupOnly = utils.getInputAsBool(constants_1.Inputs.LookupOnly);
-            const primaryKey = core.getInput(constants_1.Inputs.Key);
-            stateProvider.setState(constants_1.State.CachePrimaryKey, primaryKey);
-            const restoreKeys = utils.getInputAsArray(constants_1.Inputs.RestoreKeys);
-            const cachePath = utils.getInputAsArray(constants_1.Inputs.Path);
-            const cachePaths = utils.getInputAsArray(constants_1.Inputs.Paths);
-            if (cachePath.length > 0)
-                cachePaths.push(cachePath.join('|'));
-            cachePaths.forEach((path) => __awaiter(this, void 0, void 0, function* () {
-                // slow, because it blocks waiting for each path to be restored
-                const cacheKey = yield cache.restoreCache([path], primaryKey, restoreKeys, { lookupOnly: lookupOnly }, enableCrossOsArchive);
-                if (!cacheKey) {
-                    if (failOnCacheMiss) {
-                        throw new Error(`Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input path: ${path}. Input key: ${primaryKey}`);
-                    }
-                    core.info(`Cache not found for input path: ${path} keys: ${[
-                        primaryKey,
-                        ...restoreKeys
-                    ].join(", ")}`);
-                    return;
-                }
-                // Store the matched cache key in states
-                // old API used one path per call and cache-matched-key had only one return value
-                stateProvider.setState(constants_1.State.CacheMatchedKey, cacheKey);
-                const isExactKeyMatch = utils.isExactKeyMatch(core.getInput(constants_1.Inputs.Key, { required: true }), cacheKey);
-                core.setOutput(constants_1.Outputs.CacheHit, isExactKeyMatch.toString());
-                if (lookupOnly) {
-                    core.info(`Cache found for ${path} and can be restored from key: ${cacheKey}`);
-                }
-                else {
-                    core.info(`Cache restored for ${path} from key: ${cacheKey}`);
-                }
-            }));
-            return;
-        }
-        catch (error) {
-            core.setFailed(error.message);
-        }
-    });
-}
-exports.default = restoreImpl;
-
+module.exports = require("url");
 
 /***/ }),
 /* 836 */,
