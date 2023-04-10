@@ -35117,9 +35117,8 @@ function restoreListImpl(stateProvider) {
             const json = JSON.parse(jsonString); // might throw SyntaxError
             const cacheMisses = [];
             const cacheHits = [];
-            json.forEach((value) => __awaiter(this, void 0, void 0, function* () {
+            yield Promise.all(json.forEach((value) => __awaiter(this, void 0, void 0, function* () {
                 if (value instanceof Object) {
-                    // slow, because it blocks waiting for each path to be restored
                     const cacheKey = yield cache.restoreCache([value['path']], value['key'], value['restore-keys'], { lookupOnly: lookupOnly }, enableCrossOsArchive);
                     if (!cacheKey) {
                         if (failOnCacheMiss) {
@@ -35144,7 +35143,7 @@ function restoreListImpl(stateProvider) {
                         core.info(`Cache restored for ${value['path']} from key: ${cacheKey}`);
                     }
                 }
-            }));
+            })));
             core.setOutput(constants_1.ListOutputs.CacheHits, JSON.stringify(cacheHits));
             core.setOutput(constants_1.ListOutputs.CacheMisses, JSON.stringify(cacheMisses));
             core.info(JSON.stringify(cacheMisses));
