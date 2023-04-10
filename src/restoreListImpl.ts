@@ -1,7 +1,7 @@
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 
-import { Events, Inputs, Outputs, State } from "./constants";
+import { Events, Inputs, ListInputs, ListOutputs as Outputs, State } from "./constants";
 import { IStateProvider } from "./stateProvider";
 import * as utils from "./utils/actionUtils";
 
@@ -10,7 +10,7 @@ async function restoreListImpl(
 ): Promise<undefined> {
     try {
         if (!utils.isCacheFeatureAvailable()) {
-            core.setOutput(Outputs.CacheHit, "false");
+            core.setOutput(Outputs.CacheHits, "[]");
             return;
         }
 
@@ -30,7 +30,7 @@ async function restoreListImpl(
         const failOnCacheMiss = utils.getInputAsBool(Inputs.FailOnCacheMiss);
         const lookupOnly = utils.getInputAsBool(Inputs.LookupOnly);
 
-        const jsonString = core.getInput(Inputs.Json);
+        const jsonString = core.getInput(ListInputs.Json);
 
 	const json = JSON.parse(jsonString); // might throw SyntaxError
 	const cacheMisses: Object[] = [];
