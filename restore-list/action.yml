@@ -1,0 +1,18 @@
+name: 'Restore Cache'
+description: 'Restore Cache artifacts like dependencies and build outputs to improve workflow execution time'
+author: 'GitHub'
+inputs:
+  json:
+    description: 'A list of files, directories, and wildcard patterns to restore'
+    required: true
+outputs:
+  cache-hits:
+    description: 'A list of cache hits'
+  cache-misses:
+    description: 'A list of cache misses'
+runs:
+  using: 'node16'
+  main: '../dist/restore-list/index.js'
+branding:
+  icon: 'archive'
+  color: 'gray-dark'
