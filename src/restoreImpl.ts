@@ -37,8 +37,11 @@ async function restoreImpl(
            const cacheMisses: Object[] = [];
            const cacheHits: Object[] = [];
 
+	   core.info(`jsonString: ${jsonString}`);
+	   core.info(`json: ${json}`);
            json.forEach( async value => {
 
+	     core.info(`value: ${value}`);
 	     if (value instanceof Object) {
 
 	       // slow, because it blocks waiting for each path to be restored
