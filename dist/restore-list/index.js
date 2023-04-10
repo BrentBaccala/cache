@@ -35147,6 +35147,7 @@ function restoreListImpl(stateProvider) {
             }));
             core.setOutput(constants_1.ListOutputs.CacheHits, JSON.stringify(cacheHits));
             core.setOutput(constants_1.ListOutputs.CacheMisses, JSON.stringify(cacheMisses));
+            core.info(JSON.stringify(cacheMisses));
         }
         catch (error) {
             core.setFailed(error.message);
