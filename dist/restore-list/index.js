@@ -35117,7 +35117,9 @@ function restoreListImpl(stateProvider) {
             const json = JSON.parse(jsonString); // might throw SyntaxError
             const cacheMisses = [];
             const cacheHits = [];
-            yield Promise.all(json.forEach((value) => __awaiter(this, void 0, void 0, function* () {
+            // Asynchronously run the next block of code over all elements in the JSON list.
+            // There will be side effects; the cacheMisses and cacheHits lists will be populated.
+            yield Promise.all(json.map((value) => __awaiter(this, void 0, void 0, function* () {
                 if (value instanceof Object) {
                     const cacheKey = yield cache.restoreCache([value['path']], value['key'], value['restore-keys'], { lookupOnly: lookupOnly }, enableCrossOsArchive);
                     if (!cacheKey) {
