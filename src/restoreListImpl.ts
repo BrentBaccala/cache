@@ -83,6 +83,7 @@ async function restoreListImpl(
 	});
 	core.setOutput(Outputs.CacheHits, JSON.stringify(cacheHits));
 	core.setOutput(Outputs.CacheMisses, JSON.stringify(cacheMisses));
+	core.info(JSON.stringify(cacheMisses));
     } catch (error: unknown) {
         core.setFailed((error as Error).message);
     }
