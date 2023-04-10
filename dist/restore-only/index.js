@@ -49120,6 +49120,7 @@ function restoreImpl(stateProvider) {
             const failOnCacheMiss = utils.getInputAsBool(constants_1.Inputs.FailOnCacheMiss);
             const lookupOnly = utils.getInputAsBool(constants_1.Inputs.LookupOnly);
             const jsonString = core.getInput(constants_1.Inputs.Json);
+            core.info(`jsonString: ${jsonString}`);
             if (jsonString != "") {
                 const json = JSON.parse(jsonString); // might throw SyntaxError
                 const cacheMisses = [];
