@@ -45903,13 +45903,11 @@ exports.saveCache = saveCache;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RefKey = exports.Events = exports.State = exports.Outputs = exports.Inputs = void 0;
+exports.RefKey = exports.Events = exports.State = exports.ListOutputs = exports.ListInputs = exports.Outputs = exports.Inputs = void 0;
 var Inputs;
 (function (Inputs) {
     Inputs["Key"] = "key";
     Inputs["Path"] = "path";
-    Inputs["Paths"] = "paths";
-    Inputs["Json"] = "json";
     Inputs["RestoreKeys"] = "restore-keys";
     Inputs["UploadChunkSize"] = "upload-chunk-size";
     Inputs["EnableCrossOsArchive"] = "enableCrossOsArchive";
@@ -45919,11 +45917,18 @@ var Inputs;
 var Outputs;
 (function (Outputs) {
     Outputs["CacheHit"] = "cache-hit";
-    Outputs["CacheHits"] = "cache-hits";
-    Outputs["CacheMisses"] = "cache-misses";
     Outputs["CachePrimaryKey"] = "cache-primary-key";
     Outputs["CacheMatchedKey"] = "cache-matched-key"; // Output from restore action
 })(Outputs = exports.Outputs || (exports.Outputs = {}));
+var ListInputs;
+(function (ListInputs) {
+    ListInputs["Json"] = "json";
+})(ListInputs = exports.ListInputs || (exports.ListInputs = {}));
+var ListOutputs;
+(function (ListOutputs) {
+    ListOutputs["CacheHits"] = "cache-hits";
+    ListOutputs["CacheMisses"] = "cache-misses";
+})(ListOutputs = exports.ListOutputs || (exports.ListOutputs = {}));
 var State;
 (function (State) {
     State["CachePrimaryKey"] = "CACHE_KEY";
@@ -49116,42 +49121,37 @@ function restoreImpl(stateProvider) {
                 utils.logWarning(`Event Validation Error: The event type ${process.env[constants_1.Events.Key]} is not supported because it's not tied to a branch or tag ref.`);
                 return;
             }
+            const primaryKey = core.getInput(constants_1.Inputs.Key, { required: true });
+            stateProvider.setState(constants_1.State.CachePrimaryKey, primaryKey);
+            const restoreKeys = utils.getInputAsArray(constants_1.Inputs.RestoreKeys);
+            const cachePaths = utils.getInputAsArray(constants_1.Inputs.Path, {
+                required: true
+            });
             const enableCrossOsArchive = utils.getInputAsBool(constants_1.Inputs.EnableCrossOsArchive);
             const failOnCacheMiss = utils.getInputAsBool(constants_1.Inputs.FailOnCacheMiss);
             const lookupOnly = utils.getInputAsBool(constants_1.Inputs.LookupOnly);
-            const primaryKey = core.getInput(constants_1.Inputs.Key);
-            stateProvider.setState(constants_1.State.CachePrimaryKey, primaryKey);
-            const restoreKeys = utils.getInputAsArray(constants_1.Inputs.RestoreKeys);
-            const cachePath = utils.getInputAsArray(constants_1.Inputs.Path);
-            const cachePaths = utils.getInputAsArray(constants_1.Inputs.Paths);
-            if (cachePath.length > 0)
-                cachePaths.push(cachePath.join('|'));
-            cachePaths.forEach((path) => __awaiter(this, void 0, void 0, function* () {
-                // slow, because it blocks waiting for each path to be restored
-                const cacheKey = yield cache.restoreCache([path], primaryKey, restoreKeys, { lookupOnly: lookupOnly }, enableCrossOsArchive);
-                if (!cacheKey) {
-                    if (failOnCacheMiss) {
-                        throw new Error(`Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input path: ${path}. Input key: ${primaryKey}`);
-                    }
-                    core.info(`Cache not found for input path: ${path} keys: ${[
-                        primaryKey,
-                        ...restoreKeys
-                    ].join(", ")}`);
-                    return;
+            const cacheKey = yield cache.restoreCache(cachePaths, primaryKey, restoreKeys, { lookupOnly: lookupOnly }, enableCrossOsArchive);
+            if (!cacheKey) {
+                if (failOnCacheMiss) {
+                    throw new Error(`Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input key: ${primaryKey}`);
                 }
-                // Store the matched cache key in states
-                // old API used one path per call and cache-matched-key had only one return value
-                stateProvider.setState(constants_1.State.CacheMatchedKey, cacheKey);
-                const isExactKeyMatch = utils.isExactKeyMatch(core.getInput(constants_1.Inputs.Key, { required: true }), cacheKey);
-                core.setOutput(constants_1.Outputs.CacheHit, isExactKeyMatch.toString());
-                if (lookupOnly) {
-                    core.info(`Cache found for ${path} and can be restored from key: ${cacheKey}`);
-                }
-                else {
-                    core.info(`Cache restored for ${path} from key: ${cacheKey}`);
-                }
-            }));
-            return;
+                core.info(`Cache not found for input keys: ${[
+                    primaryKey,
+                    ...restoreKeys
+                ].join(", ")}`);
+                return;
+            }
+            // Store the matched cache key in states
+            stateProvider.setState(constants_1.State.CacheMatchedKey, cacheKey);
+            const isExactKeyMatch = utils.isExactKeyMatch(core.getInput(constants_1.Inputs.Key, { required: true }), cacheKey);
+            core.setOutput(constants_1.Outputs.CacheHit, isExactKeyMatch.toString());
+            if (lookupOnly) {
+                core.info(`Cache found and can be restored from key: ${cacheKey}`);
+            }
+            else {
+                core.info(`Cache restored from key: ${cacheKey}`);
+            }
+            return cacheKey;
         }
         catch (error) {
             core.setFailed(error.message);

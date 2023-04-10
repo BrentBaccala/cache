@@ -46044,13 +46044,11 @@ exports.saveCache = saveCache;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RefKey = exports.Events = exports.State = exports.Outputs = exports.Inputs = void 0;
+exports.RefKey = exports.Events = exports.State = exports.ListOutputs = exports.ListInputs = exports.Outputs = exports.Inputs = void 0;
 var Inputs;
 (function (Inputs) {
     Inputs["Key"] = "key";
     Inputs["Path"] = "path";
-    Inputs["Paths"] = "paths";
-    Inputs["Json"] = "json";
     Inputs["RestoreKeys"] = "restore-keys";
     Inputs["UploadChunkSize"] = "upload-chunk-size";
     Inputs["EnableCrossOsArchive"] = "enableCrossOsArchive";
@@ -46060,11 +46058,18 @@ var Inputs;
 var Outputs;
 (function (Outputs) {
     Outputs["CacheHit"] = "cache-hit";
-    Outputs["CacheHits"] = "cache-hits";
-    Outputs["CacheMisses"] = "cache-misses";
     Outputs["CachePrimaryKey"] = "cache-primary-key";
     Outputs["CacheMatchedKey"] = "cache-matched-key"; // Output from restore action
 })(Outputs = exports.Outputs || (exports.Outputs = {}));
+var ListInputs;
+(function (ListInputs) {
+    ListInputs["Json"] = "json";
+})(ListInputs = exports.ListInputs || (exports.ListInputs = {}));
+var ListOutputs;
+(function (ListOutputs) {
+    ListOutputs["CacheHits"] = "cache-hits";
+    ListOutputs["CacheMisses"] = "cache-misses";
+})(ListOutputs = exports.ListOutputs || (exports.ListOutputs = {}));
 var State;
 (function (State) {
     State["CachePrimaryKey"] = "CACHE_KEY";

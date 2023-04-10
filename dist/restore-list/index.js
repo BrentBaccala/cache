@@ -35102,7 +35102,7 @@ function restoreListImpl(stateProvider) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             if (!utils.isCacheFeatureAvailable()) {
-                core.setOutput(constants_1.Outputs.CacheHit, "false");
+                core.setOutput(constants_1.ListOutputs.CacheHits, "[]");
                 return;
             }
             // Validate inputs, this can cause task failure
@@ -35113,7 +35113,7 @@ function restoreListImpl(stateProvider) {
             const enableCrossOsArchive = utils.getInputAsBool(constants_1.Inputs.EnableCrossOsArchive);
             const failOnCacheMiss = utils.getInputAsBool(constants_1.Inputs.FailOnCacheMiss);
             const lookupOnly = utils.getInputAsBool(constants_1.Inputs.LookupOnly);
-            const jsonString = core.getInput(constants_1.Inputs.Json);
+            const jsonString = core.getInput(constants_1.ListInputs.Json);
             const json = JSON.parse(jsonString); // might throw SyntaxError
             const cacheMisses = [];
             const cacheHits = [];
@@ -35145,8 +35145,8 @@ function restoreListImpl(stateProvider) {
                     }
                 }
             }));
-            core.setOutput(constants_1.Outputs.CacheHits, JSON.stringify(cacheHits));
-            core.setOutput(constants_1.Outputs.CacheMisses, JSON.stringify(cacheMisses));
+            core.setOutput(constants_1.ListOutputs.CacheHits, JSON.stringify(cacheHits));
+            core.setOutput(constants_1.ListOutputs.CacheMisses, JSON.stringify(cacheMisses));
         }
         catch (error) {
             core.setFailed(error.message);
@@ -46027,13 +46027,11 @@ exports.saveCache = saveCache;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RefKey = exports.Events = exports.State = exports.Outputs = exports.Inputs = void 0;
+exports.RefKey = exports.Events = exports.State = exports.ListOutputs = exports.ListInputs = exports.Outputs = exports.Inputs = void 0;
 var Inputs;
 (function (Inputs) {
     Inputs["Key"] = "key";
     Inputs["Path"] = "path";
-    Inputs["Paths"] = "paths";
-    Inputs["Json"] = "json";
     Inputs["RestoreKeys"] = "restore-keys";
     Inputs["UploadChunkSize"] = "upload-chunk-size";
     Inputs["EnableCrossOsArchive"] = "enableCrossOsArchive";
@@ -46043,11 +46041,18 @@ var Inputs;
 var Outputs;
 (function (Outputs) {
     Outputs["CacheHit"] = "cache-hit";
-    Outputs["CacheHits"] = "cache-hits";
-    Outputs["CacheMisses"] = "cache-misses";
     Outputs["CachePrimaryKey"] = "cache-primary-key";
     Outputs["CacheMatchedKey"] = "cache-matched-key"; // Output from restore action
 })(Outputs = exports.Outputs || (exports.Outputs = {}));
+var ListInputs;
+(function (ListInputs) {
+    ListInputs["Json"] = "json";
+})(ListInputs = exports.ListInputs || (exports.ListInputs = {}));
+var ListOutputs;
+(function (ListOutputs) {
+    ListOutputs["CacheHits"] = "cache-hits";
+    ListOutputs["CacheMisses"] = "cache-misses";
+})(ListOutputs = exports.ListOutputs || (exports.ListOutputs = {}));
 var State;
 (function (State) {
     State["CachePrimaryKey"] = "CACHE_KEY";
