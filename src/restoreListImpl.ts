@@ -36,7 +36,10 @@ async function restoreListImpl(
 	const cacheMisses: Object[] = [];
 	const cacheHits: Object[] = [];
 
-	await Promise.all(json.forEach( async value => {
+	// Asynchronously run the next block of code over all elements in the JSON list.
+	// There will be side effects; the cacheMisses and cacheHits lists will be populated.
+
+	await Promise.all(json.map( async value => {
 
 	    if (value instanceof Object) {
 
