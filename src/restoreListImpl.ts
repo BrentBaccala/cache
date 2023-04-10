@@ -43,10 +43,12 @@ async function restoreListImpl(
 
 	    if (value instanceof Object) {
 
+		const restoreKeys = value['restore-keys'] || [];
+
 		const cacheKey = await cache.restoreCache(
 		    [value['path']],
 		    value['key'],
-		    value['restore-keys'],
+		    restoreKeys,
 		    { lookupOnly: lookupOnly },
 		    enableCrossOsArchive
 		);
@@ -60,7 +62,7 @@ async function restoreListImpl(
 		    core.info(
 			`Cache not found for input path: ${value['path']} keys: ${[
 			    value['key'],
-			    ...value['restore-keys']
+			    ...restoreKeys
 			].join(", ")}`
 		    );
 
