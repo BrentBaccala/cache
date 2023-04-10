@@ -32,6 +32,7 @@ async function restoreImpl(
 
         const jsonString = core.getInput(Inputs.Json);
 
+        core.info(`jsonString: ${jsonString}`);
         if (jsonString != "") {
            const json = JSON.parse(jsonString); // might throw SyntaxError
            const cacheMisses: Object[] = [];
