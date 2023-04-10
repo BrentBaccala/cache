@@ -36,11 +36,10 @@ async function restoreListImpl(
 	const cacheMisses: Object[] = [];
 	const cacheHits: Object[] = [];
 
-	json.forEach( async value => {
+	await Promise.all(json.forEach( async value => {
 
 	    if (value instanceof Object) {
 
-		// slow, because it blocks waiting for each path to be restored
 		const cacheKey = await cache.restoreCache(
 		    [value['path']],
 		    value['key'],
@@ -80,7 +79,7 @@ async function restoreListImpl(
 		    core.info(`Cache restored for ${value['path']} from key: ${cacheKey}`);
 		}
 	    }
-	});
+	}));
 	core.setOutput(Outputs.CacheHits, JSON.stringify(cacheHits));
 	core.setOutput(Outputs.CacheMisses, JSON.stringify(cacheMisses));
 	core.info(JSON.stringify(cacheMisses));
