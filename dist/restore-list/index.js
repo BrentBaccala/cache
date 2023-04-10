@@ -35121,14 +35121,15 @@ function restoreListImpl(stateProvider) {
             // There will be side effects; the cacheMisses and cacheHits lists will be populated.
             yield Promise.all(json.map((value) => __awaiter(this, void 0, void 0, function* () {
                 if (value instanceof Object) {
-                    const cacheKey = yield cache.restoreCache([value['path']], value['key'], value['restore-keys'], { lookupOnly: lookupOnly }, enableCrossOsArchive);
+                    const restoreKeys = value['restore-keys'] || [];
+                    const cacheKey = yield cache.restoreCache([value['path']], value['key'], restoreKeys, { lookupOnly: lookupOnly }, enableCrossOsArchive);
                     if (!cacheKey) {
                         if (failOnCacheMiss) {
                             throw new Error(`Failed to restore cache entry. Exiting as fail-on-cache-miss is set. Input path: ${value['path']}. Input key: ${value['key']}`);
                         }
                         core.info(`Cache not found for input path: ${value['path']} keys: ${[
                             value['key'],
-                            ...value['restore-keys']
+                            ...restoreKeys
                         ].join(", ")}`);
                         cacheMisses.push(value);
                         return;
