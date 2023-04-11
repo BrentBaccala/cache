@@ -24,11 +24,11 @@ async function restoreListImpl(
             return;
         }
 
-        const enableCrossOsArchive = utils.getInputAsBool(
-            Inputs.EnableCrossOsArchive
-        );
-        const failOnCacheMiss = utils.getInputAsBool(Inputs.FailOnCacheMiss);
-        const lookupOnly = utils.getInputAsBool(Inputs.LookupOnly);
+        const globals = {
+	    enableCrossOsArchive: utils.getInputAsBool(Inputs.EnableCrossOsArchive),
+            failOnCacheMiss: utils.getInputAsBool(Inputs.FailOnCacheMiss),
+            lookupOnly: utils.getInputAsBool(Inputs.LookupOnly)
+	};
 
         const jsonString = core.getInput(ListInputs.Json);
 
@@ -43,7 +43,10 @@ async function restoreListImpl(
 
 	    if (value instanceof Object) {
 
-		const restoreKeys = value['restore-keys'] || [];
+		const restoreKeys = value[Inputs.RestoreKeys] ?? [];
+		const enableCrossOsArchive = value[Inputs.EnableCrossOsArchive] ?? globals.enableCrossOsArchive;
+		const failOnCacheMiss = value[Inputs.FailOnCacheMiss] ?? globals.failOnCacheMiss;
+		const lookupOnly = value[Inputs.LookupOnly] ?? globals.lookupOnly;
 
 		const cacheKey = await cache.restoreCache(
 		    [value['path']],
