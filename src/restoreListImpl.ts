@@ -1,7 +1,7 @@
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 
-import { Events, Inputs, ListInputs, ListOutputs as Outputs, State } from "./constants";
+import { Events, Inputs, Outputs, ListInputs, ListOutputs, State } from "./constants";
 import { IStateProvider } from "./stateProvider";
 import * as utils from "./utils/actionUtils";
 
@@ -10,7 +10,7 @@ async function restoreListImpl(
 ): Promise<undefined> {
     try {
         if (!utils.isCacheFeatureAvailable()) {
-            core.setOutput(Outputs.CacheHits, "[]");
+            core.setOutput(ListOutputs.CacheHits, "[]");
             return;
         }
 
@@ -73,9 +73,8 @@ async function restoreListImpl(
 		    return;
 		}
 
-		// Store the matched cache key in states
-		// old API used one path per call and cache-matched-key had only one return value
-		stateProvider.setState(State.CacheMatchedKey, cacheKey);
+		// Store the matched cache key
+		value[Outputs.CacheMatchedKey] = cacheKey;
 
 		const isExactKeyMatch = utils.isExactKeyMatch(value['key'], cacheKey);
 
@@ -88,8 +87,8 @@ async function restoreListImpl(
 		}
 	    }
 	}));
-	core.setOutput(Outputs.CacheHits, JSON.stringify(cacheHits));
-	core.setOutput(Outputs.CacheMisses, JSON.stringify(cacheMisses));
+	core.setOutput(ListOutputs.CacheHits, JSON.stringify(cacheHits));
+	core.setOutput(ListOutputs.CacheMisses, JSON.stringify(cacheMisses));
 	core.info(JSON.stringify(cacheMisses));
     } catch (error: unknown) {
         core.setFailed((error as Error).message);
