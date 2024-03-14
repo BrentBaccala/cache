@@ -35110,9 +35110,11 @@ function restoreListImpl(stateProvider) {
                 utils.logWarning(`Event Validation Error: The event type ${process.env[constants_1.Events.Key]} is not supported because it's not tied to a branch or tag ref.`);
                 return;
             }
-            const enableCrossOsArchive = utils.getInputAsBool(constants_1.Inputs.EnableCrossOsArchive);
-            const failOnCacheMiss = utils.getInputAsBool(constants_1.Inputs.FailOnCacheMiss);
-            const lookupOnly = utils.getInputAsBool(constants_1.Inputs.LookupOnly);
+            const globals = {
+                enableCrossOsArchive: utils.getInputAsBool(constants_1.Inputs.EnableCrossOsArchive),
+                failOnCacheMiss: utils.getInputAsBool(constants_1.Inputs.FailOnCacheMiss),
+                lookupOnly: utils.getInputAsBool(constants_1.Inputs.LookupOnly)
+            };
             const jsonString = core.getInput(constants_1.ListInputs.Json);
             const json = JSON.parse(jsonString); // might throw SyntaxError
             const cacheMisses = [];
@@ -35120,8 +35122,12 @@ function restoreListImpl(stateProvider) {
             // Asynchronously run the next block of code over all elements in the JSON list.
             // There will be side effects; the cacheMisses and cacheHits lists will be populated.
             yield Promise.all(json.map((value) => __awaiter(this, void 0, void 0, function* () {
+                var _a, _b, _c, _d;
                 if (value instanceof Object) {
-                    const restoreKeys = value['restore-keys'] || [];
+                    const restoreKeys = (_a = value[constants_1.Inputs.RestoreKeys]) !== null && _a !== void 0 ? _a : [];
+                    const enableCrossOsArchive = (_b = value[constants_1.Inputs.EnableCrossOsArchive]) !== null && _b !== void 0 ? _b : globals.enableCrossOsArchive;
+                    const failOnCacheMiss = (_c = value[constants_1.Inputs.FailOnCacheMiss]) !== null && _c !== void 0 ? _c : globals.failOnCacheMiss;
+                    const lookupOnly = (_d = value[constants_1.Inputs.LookupOnly]) !== null && _d !== void 0 ? _d : globals.lookupOnly;
                     const cacheKey = yield cache.restoreCache([value['path']], value['key'], restoreKeys, { lookupOnly: lookupOnly }, enableCrossOsArchive);
                     if (!cacheKey) {
                         if (failOnCacheMiss) {
@@ -35134,9 +35140,8 @@ function restoreListImpl(stateProvider) {
                         cacheMisses.push(value);
                         return;
                     }
-                    // Store the matched cache key in states
-                    // old API used one path per call and cache-matched-key had only one return value
-                    stateProvider.setState(constants_1.State.CacheMatchedKey, cacheKey);
+                    // Store the matched cache key
+                    value[constants_1.Outputs.CacheMatchedKey] = cacheKey;
                     const isExactKeyMatch = utils.isExactKeyMatch(value['key'], cacheKey);
                     cacheHits.push(value);
                     if (lookupOnly) {
